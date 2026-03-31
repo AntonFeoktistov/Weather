@@ -21,16 +21,32 @@
     {% if query %}
     <div class="search-results">
         <h2>Результаты поиска: "{{ query }}"</h2>
+
         <div class="weather-info">
-            <p>Загрузка данных о погоде...</p>
-            <!-- Здесь позже будет информация о погоде -->
+            <div class="weather-card">
+                <div class="weather-header">
+                    <h3>{{ weather.city }}</h3>
+                </div>
+                <div class="temperature">
+                    <span class="temp-value">{{ weather.temperature|floatformat:1 }}</span>
+                    <span class="temp-unit">°C</span>
+                </div>
+                <div class="description">
+                    <span>{{ weather.description }}</span>
+                </div>
+            </div>
+
+            <div class="detail-item">
+                <span class="detail-label">💨 Ветер:</span>
+                <span class="detail-value">{{ weather.wind_speed|floatformat:1 }} м/с</span>
+            </div>
         </div>
     </div>
     {% endif %}
 
-    <div class="info">
-        <p>📌 Примеры: London, Moscow, New York, Paris, Tokyo</p>
-        <p>🌡️ Введите название города на английском языке</p>
-    </div>
+
+    {% if error_message %}
+    <p> {{ error_message}}</p>
+    {% endif %}
 </div>
 {% endblock %}

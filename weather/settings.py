@@ -24,7 +24,13 @@ dotenv.load_dotenv()
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "django-insecure-%mki8t3#6h+^(kl5f^2*ypznj&^3jg(t+n&1-go1q6eujfigqq"
+YANDEX_GEOCODER_API_KEY = os.getenv("YANDEX_GEOCODER_API_KEY")
+OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
 
+if not YANDEX_GEOCODER_API_KEY:
+    raise ValueError("YANDEX_GEOCODER_API_KEY not found in environment variables")
+if not OPENWEATHER_API_KEY:
+    raise ValueError("OPENWEATHER_API_KEY not found in environment variables")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 

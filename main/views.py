@@ -3,6 +3,9 @@ from django.urls import reverse_lazy
 from django.views import View
 from django.contrib.auth import login
 from django.contrib.auth.views import LoginView, LogoutView
+
+from main.geoloc import get_location_coords
+from main.weather import get_weather_by_coords
 from .forms import LocationSearchForm, SignUpForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -63,25 +66,25 @@ class HomeView(LoginRequiredMixin, View):
         search_form = LocationSearchForm(request.POST)
 
         if search_form.is_valid():
-            query = search_form.cleaned_data["query"]
-            # TODO: здесь будет обработка запроса для поиска локации
-            # Пока просто сохраняем в сессию или передаем в контекст
-            request.session["last_search"] = query
-
-            return render(
-                request,
-                self.template_name,
-                {
-                    "search_form": search_form,
-                    "query": query,
-                    # TODO: добавить результаты поиска
-                },
-            )
-
+            location_request = search_form.cleaned_data["query"]
+            request.session["last_search"] = location_request
+            location = get_location_coords(location_request)
+            if location:
+                print(location)
+                weather = get_weather_by_coords(location.lat, location.long)
+                print(weather)
+                if weather:
+                    return render(
+                        request,
+                        self.template_name,
+                        {
+                            "search_form": search_form,
+                            "query": location_request,
+                            "weather": weather,
+                        },
+                    )
         return render(
             request,
             self.template_name,
-            {
-                "search_form": search_form,
-            },
+            {"search_form": search_form, "error_message": "Погода не найдена"},
         )
