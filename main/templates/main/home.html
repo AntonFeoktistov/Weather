@@ -25,7 +25,9 @@
         <div class="weather-info">
             <div class="weather-card">
                 <div class="weather-header">
-                    <h3>{{ weather.city }}</h3>
+                    <h3>{{ weather.location.name_ru }}</h3>
+                    <h3>{{ weather.location.name_en }}</h3>
+                    <h3>{{ weather.location.state }}</h3>
                 </div>
                 <div class="temperature">
                     <span class="temp-value">{{ weather.temperature|floatformat:1 }}</span>

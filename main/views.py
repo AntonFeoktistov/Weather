@@ -4,8 +4,10 @@ from django.views import View
 from django.contrib.auth import login
 from django.contrib.auth.views import LoginView, LogoutView
 
-from main.geoloc import get_location_coords
-from main.weather import get_weather_by_coords
+
+from main.service.errors import WeatherNotFoundError
+from main.service.weather_finder import WeatherFinder
+
 from .forms import LocationSearchForm, SignUpForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -47,6 +49,9 @@ class CustomLogoutView(LogoutView):
     next_page = "main:home"
 
 
+weather_finder = WeatherFinder()
+
+
 class HomeView(LoginRequiredMixin, View):
     template_name = "main/home.html"
     login_url = "main:login"
@@ -68,23 +73,21 @@ class HomeView(LoginRequiredMixin, View):
         if search_form.is_valid():
             location_request = search_form.cleaned_data["query"]
             request.session["last_search"] = location_request
-            location = get_location_coords(location_request)
-            if location:
-                print(location)
-                weather = get_weather_by_coords(location.lat, location.long)
+            try:
+                weather = weather_finder.get_weather_by_city_name(location_request)
                 print(weather)
-                if weather:
-                    return render(
-                        request,
-                        self.template_name,
-                        {
-                            "search_form": search_form,
-                            "query": location_request,
-                            "weather": weather,
-                        },
-                    )
-        return render(
-            request,
-            self.template_name,
-            {"search_form": search_form, "error_message": "Погода не найдена"},
-        )
+                return render(
+                    request,
+                    self.template_name,
+                    {
+                        "search_form": search_form,
+                        "query": location_request,
+                        "weather": weather,
+                    },
+                )
+            except WeatherNotFoundError:
+                return render(
+                    request,
+                    self.template_name,
+                    {"search_form": search_form, "error_message": "Погода не найдена"},
+                )

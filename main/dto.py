@@ -3,14 +3,16 @@ from dataclasses import dataclass
 
 @dataclass
 class LocationDto:
-    name: str
-    long: float
-    lat: float
+    name_en: str = ""
+    name_ru: str = ""
+    state: str = ""
+    lon: float = 0
+    lat: float = 0
 
 
 @dataclass
 class WeatherDto:
-    city: str
-    temperature: float
-    description: str
-    wind_speed: float
+    location: LocationDto = None
+    temperature: float = 0
+    description: str = ""
+    wind_speed: float = 0
