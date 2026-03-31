@@ -1,0 +1,36 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Поиск погоды{% endblock %}
+
+{% block content %}
+<div class="home-container">
+    <h1>🌤️ Поиск погоды</h1>
+
+    <div class="search-section">
+        <form method="post" class="search-form">
+            {% csrf_token %}
+            <div class="search-wrapper">
+                <input type="text" name="query" class="search-input"
+                    placeholder="Введите название города или локации..." value="{{ query|default:'' }}"
+                    autocomplete="off" required>
+                <button type="submit" class="search-btn">🔍 Поиск</button>
+            </div>
+        </form>
+    </div>
+
+    {% if query %}
+    <div class="search-results">
+        <h2>Результаты поиска: "{{ query }}"</h2>
+        <div class="weather-info">
+            <p>Загрузка данных о погоде...</p>
+            <!-- Здесь позже будет информация о погоде -->
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="info">
+        <p>📌 Примеры: London, Moscow, New York, Paris, Tokyo</p>
+        <p>🌡️ Введите название города на английском языке</p>
+    </div>
+</div>
+{% endblock %}

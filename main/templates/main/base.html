@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Мой сайт{% endblock %}</title>
+</head>
+
+<body>
+    <nav>
+        {% if user.is_authenticated %}
+        <span>Привет, {{ user.username }}!</span>
+        <form method="post" action="{% url 'main:logout' %}" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit">Выйти</button>
+        </form>
+        {% else %}
+        <a href="{% url 'main:login' %}">Войти</a>
+        <a href="{% url 'main:register' %}">Регистрация</a>
+        {% endif %}
+    </nav>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+</body>
+
+</html>

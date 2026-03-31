@@ -1,0 +1,42 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="register-container">
+    <h2>Регистрация</h2>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {% if form.errors %}
+        <div class="errors">
+            {% for field, errors in form.errors.items %}
+            {% for error in errors %}
+            <p class="error">{{ error }}</p>
+            {% endfor %}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div>
+            <label>Имя пользователя:</label>
+            {{ form.username }}
+            <small>{{ form.username.help_text }}</small>
+        </div>
+
+        <div>
+            <label>Пароль:</label>
+            {{ form.password1 }}
+            <small>{{ form.password1.help_text }}</small>
+        </div>
+
+        <div>
+            <label>Подтверждение пароля:</label>
+            {{ form.password2 }}
+        </div>
+
+        <button type="submit">Зарегистрироваться</button>
+    </form>
+
+    <p>Уже есть аккаунт? <a href="{% url 'main:login' %}">Войти</a></p>
+</div>
+{% endblock %}
