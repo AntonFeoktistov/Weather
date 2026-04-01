@@ -1,5 +1,18 @@
 {% extends 'main/base.html' %}
-
+<style>
+    .right-panel {
+        position: fixed;
+        right: 20px;
+        top: 20px;
+        width: 280px;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 15px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+    }
+</style>
 {% block title %}Поиск погоды{% endblock %}
 
 {% block content %}
@@ -27,7 +40,9 @@
                 <div class="weather-header">
                     <h3>{{ weather.location.name_ru }}</h3>
                     <h3>{{ weather.location.name_en }}</h3>
+                    {% if weather.location.state %}
                     <h3>{{ weather.location.state }}</h3>
+                    {% endif %}
                 </div>
                 <div class="temperature">
                     <span class="temp-value">{{ weather.temperature|floatformat:1 }}</span>
@@ -44,11 +59,42 @@
             </div>
         </div>
     </div>
+
+    <form method="post" action="{% url 'main:add_location' %}">
+        {% csrf_token %}
+        <input type="hidden" name="name" value="{{ weather.location.name_ru }}">
+        <input type="hidden" name="lat" value="{{ weather.location.lat }}">
+        <input type="hidden" name="lon" value="{{ weather.location.lon }}">
+        <button type="submit">⭐ Добавить в избранное</button>
+    </form>
+    {% endif %}
+
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+
     {% endif %}
 
 
     {% if error_message %}
     <p> {{ error_message}}</p>
     {% endif %}
+
+    <div class="right-panel">
+        <h3>⭐ Избранное</h3>
+        {% if locations %}
+        {% for location in locations %}
+        <div>{{ location.name }}</div>
+        {% endfor %}
+        {% else %}
+        <p>Нет избранных</p>
+        {% endif %}
+    </div>
+
 </div>
 {% endblock %}
