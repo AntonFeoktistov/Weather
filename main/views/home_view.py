@@ -37,11 +37,11 @@ class HomeView(LoginRequiredMixin, View):
         if search_form.is_valid():
             location_request = search_form.cleaned_data["query"]
             request.session["last_query"] = location_request
+            locations = request.user.locations.all()
             try:
                 weather = self.weather_finder.get_weather_by_city_name(location_request)
                 request.session["last_weather"] = asdict(weather)
                 print(weather)
-                locations = request.user.locations.all()
                 return render(
                     request,
                     self.template_name,

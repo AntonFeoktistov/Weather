@@ -9,7 +9,7 @@ class IndexView(View):
         if request.user.is_authenticated:
             return redirect("main:home")
 
-        all_locations = Location.objects.all().order_by("-id")
+        all_locations = Location.objects.all()
         locations = self._find_unick_locations(all_locations)
         return render(request, "main/index.html", {"locations": locations})
 
