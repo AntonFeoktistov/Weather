@@ -1,5 +1,5 @@
 from dataclasses import asdict
-
+from urllib.parse import quote
 from django.shortcuts import render, redirect
 from django.views import View
 from main.service.errors import WeatherNotFoundError
@@ -33,13 +33,12 @@ class HomeView(LoginRequiredMixin, View):
 
     def post(self, request):
         search_form = LocationSearchForm(request.POST)
-
         if search_form.is_valid():
-            location_request = search_form.cleaned_data["query"]
-            request.session["last_query"] = location_request
+            city_name = search_form.cleaned_data["query"]
+            request.session["last_query"] = city_name
             locations = request.user.locations.all()
             try:
-                weather = self.weather_finder.get_weather_by_city_name(location_request)
+                weather = self.weather_finder.get_weather_by_city_name(city_name)
                 request.session["last_weather"] = asdict(weather)
                 print(weather)
                 return render(
@@ -47,7 +46,7 @@ class HomeView(LoginRequiredMixin, View):
                     self.template_name,
                     {
                         "search_form": search_form,
-                        "query": location_request,
+                        "query": city_name,
                         "weather": weather,
                         "locations": locations,
                     },
