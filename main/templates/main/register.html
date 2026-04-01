@@ -1,42 +1,94 @@
 {% extends 'main/base.html' %}
 
+{% block title %}Регистрация{% endblock %}
+
 {% block content %}
-<div class="register-container">
-    <h2>Регистрация</h2>
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4 p-md-5">
+                <h2 class="text-center mb-4">Регистрация</h2>
 
-    <form method="post">
-        {% csrf_token %}
+                <form method="post">
+                    {% csrf_token %}
 
-        {% if form.errors %}
-        <div class="errors">
-            {% for field, errors in form.errors.items %}
-            {% for error in errors %}
-            <p class="error">{{ error }}</p>
-            {% endfor %}
-            {% endfor %}
+                    <!-- Ошибки формы -->
+                    {% if form.errors %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <strong>Ошибка!</strong> Пожалуйста, исправьте следующие ошибки:
+                        <ul class="mb-0 mt-2">
+                            {% for field, errors in form.errors.items %}
+                            {% for error in errors %}
+                            <li>{{ error }}</li>
+                            {% endfor %}
+                            {% endfor %}
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endif %}
+
+                    <!-- Поле: Имя пользователя -->
+                    <div class="mb-3">
+                        <label for="{{ form.username.id_for_label }}" class="form-label">
+                            Имя пользователя
+                        </label>
+                        {{ form.username }}
+                        <div class="form-text">
+                            {{ form.username.help_text|safe }}
+                        </div>
+                        {% if form.username.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ form.username.errors|join:", " }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Поле: Пароль -->
+                    <div class="mb-3">
+                        <label for="{{ form.password1.id_for_label }}" class="form-label">
+                            Пароль
+                        </label>
+                        {{ form.password1 }}
+                        <div class="form-text">
+                            {{ form.password1.help_text|safe }}
+                        </div>
+                        {% if form.password1.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ form.password1.errors|join:", " }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Поле: Подтверждение пароля -->
+                    <div class="mb-4">
+                        <label for="{{ form.password2.id_for_label }}" class="form-label">
+                            Подтверждение пароля
+                        </label>
+                        {{ form.password2 }}
+                        {% if form.password2.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ form.password2.errors|join:", " }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Кнопка регистрации -->
+                    <button type="submit" class="btn btn-primary btn-lg w-100 mb-3">
+                        Зарегистрироваться
+                    </button>
+                </form>
+
+                <!-- Ссылка на вход -->
+                <div class="text-center">
+                    <p class="mb-0 text-muted">
+                        Уже есть аккаунт?
+                        <a href="{% url 'main:login' %}" class="text-decoration-none">
+                            Войти
+                        </a>
+                    </p>
+                </div>
+            </div>
         </div>
-        {% endif %}
-
-        <div>
-            <label>Имя пользователя:</label>
-            {{ form.username }}
-            <small>{{ form.username.help_text }}</small>
-        </div>
-
-        <div>
-            <label>Пароль:</label>
-            {{ form.password1 }}
-            <small>{{ form.password1.help_text }}</small>
-        </div>
-
-        <div>
-            <label>Подтверждение пароля:</label>
-            {{ form.password2 }}
-        </div>
-
-        <button type="submit">Зарегистрироваться</button>
-    </form>
-
-    <p>Уже есть аккаунт? <a href="{% url 'main:login' %}">Войти</a></p>
+    </div>
 </div>
 {% endblock %}

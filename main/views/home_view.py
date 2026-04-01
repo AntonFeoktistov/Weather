@@ -18,6 +18,7 @@ class HomeView(LoginRequiredMixin, View):
 
     def get(self, request):
         locations = request.user.locations.all()
+        print(locations)
         search_form = LocationSearchForm()
         return render(
             request,

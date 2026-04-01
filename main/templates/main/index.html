@@ -1,5 +1,84 @@
 {% extends 'main/base.html' %}
-{% block title %} Главная {% endblock %}
+
+{% block title %}Главная{% endblock %}
+
 {% block content %}
-Главная страница
+<div class="row g-4">
+    <!-- Левая колонка: список городов -->
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Популярные локации</h5>
+                <form method="post" action="{% url 'main:refresh_index' %}">
+                    {% csrf_token %}
+                    {% for location in locations %}
+                    <input type="hidden" name="location_ids" value="{{ location.id }}">
+                    {% endfor %}
+                    <button type="submit" class="btn btn-sm btn-outline-secondary">
+                        Обновить погоду
+                    </button>
+                </form>
+            </div>
+            <div class="list-group list-group-flush">
+                {% if locations %}
+                {% for location in locations %}
+                <div class="list-group-item">
+                    <div class="fw-bold">{{ location.name }}</div>
+                    {% if location.weather_data %}
+                    <div class="row mt-2">
+                        <div class="col-4">
+                            <span class="fw-bold">{{ location.weather_data.temperature|floatformat:1 }}°C</span>
+                        </div>
+                        <div class="col-5 text-muted">
+                            {{ location.weather_data.description }}
+                        </div>
+                        <div class="col-3 text-muted">
+                            💨 {{ location.weather_data.wind_speed|floatformat:1 }}
+                        </div>
+                    </div>
+                    <div class="text-end mt-1">
+                        <small class="text-muted">
+                            обновлено: {{ location.weather_updated_at|date:"H:i" }}
+                        </small>
+                    </div>
+                    {% else %}
+                    <div class="text-muted small mt-1">
+                        Погода не загружена
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="list-group-item text-center text-muted">
+                    Нет добавленных локаций
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Правая колонка: кнопки входа и регистрации -->
+    <div class="col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                {% if user.is_authenticated %}
+                <h4 class="text-center mb-3">{{ user.username }}</h4>
+                <form method="post" action="{% url 'main:logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-danger w-100">
+                        Выйти
+                    </button>
+                </form>
+                {% else %}
+                <a href="{% url 'main:login' %}" class="btn btn-primary w-100 mb-3">
+                    Войти
+                </a>
+                <a href="{% url 'main:register' %}" class="btn btn-outline-primary w-100">
+                    Регистрация
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

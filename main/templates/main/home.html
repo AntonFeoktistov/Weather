@@ -1,100 +1,165 @@
 {% extends 'main/base.html' %}
-<style>
-    .right-panel {
-        position: fixed;
-        right: 20px;
-        top: 20px;
-        width: 280px;
-        background: white;
-        border: 1px solid #ddd;
-        border-radius: 10px;
-        padding: 15px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        z-index: 1000;
-    }
-</style>
+
 {% block title %}Поиск погоды{% endblock %}
 
 {% block content %}
-<div class="home-container">
-    <h1>🌤️ Поиск погоды</h1>
-
-    <div class="search-section">
-        <form method="post" class="search-form">
-            {% csrf_token %}
-            <div class="search-wrapper">
-                <input type="text" name="query" class="search-input"
-                    placeholder="Введите название города или локации..." value="{{ query|default:'' }}"
-                    autocomplete="off" required>
-                <button type="submit" class="search-btn">🔍 Поиск</button>
-            </div>
-        </form>
-    </div>
-
-    {% if query %}
-    <div class="search-results">
-        <h2>Результаты поиска: "{{ query }}"</h2>
-
-        <div class="weather-info">
-            <div class="weather-card">
-                <div class="weather-header">
-                    <h3>{{ weather.location.name_ru }}</h3>
-                    <h3>{{ weather.location.name_en }}</h3>
-                    {% if weather.location.state %}
-                    <h3>{{ weather.location.state }}</h3>
-                    {% endif %}
-                </div>
-                <div class="temperature">
-                    <span class="temp-value">{{ weather.temperature|floatformat:1 }}</span>
-                    <span class="temp-unit">°C</span>
-                </div>
-                <div class="description">
-                    <span>{{ weather.description }}</span>
-                </div>
-            </div>
-
-            <div class="detail-item">
-                <span class="detail-label">💨 Ветер:</span>
-                <span class="detail-value">{{ weather.wind_speed|floatformat:1 }} м/с</span>
+<div class="row g-4">
+    <!-- Левая колонка: поиск и погода -->
+    <div class="col-lg-8">
+        <!-- Форма поиска -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <form method="post" action="{% url 'main:home' %}">
+                    {% csrf_token %}
+                    <div class="input-group">
+                        <input type="text" name="query" class="form-control form-control-lg"
+                            placeholder="Введите название города или локации..." value="{{ query|default:'' }}"
+                            autocomplete="off" required>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            Поиск
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
-    </div>
 
-    <form method="post" action="{% url 'main:add_location' %}">
-        {% csrf_token %}
-        <input type="hidden" name="name" value="{{ weather.location.name_ru }}">
-        <input type="hidden" name="lat" value="{{ weather.location.lat }}">
-        <input type="hidden" name="lon" value="{{ weather.location.lon }}">
-        <button type="submit">⭐ Добавить в избранное</button>
-    </form>
-    {% endif %}
+        <!-- Результаты поиска -->
+        {% if weather %}
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title mb-3">
+                    {% if query %}Результаты поиска: "{{ query }}"{% else %}Погода{% endif %}
+                </h5>
 
-    {% if messages %}
-    <div class="messages">
-        {% for message in messages %}
-        <div class="alert alert-{{ message.tags }}">
-            {{ message }}
+                <div class="weather-info">
+                    <div class="weather-header mb-3">
+                        <h3 class="mb-1">{{ weather.location.name_ru }}</h3>
+                        {% if weather.location.name_en and weather.location.name_en != weather.location.name_ru %}
+                        <span class="text-muted">{{ weather.location.name_en }}</span>
+                        {% endif %}
+                        {% if weather.location.state %}
+                        <span class="badge bg-secondary ms-2">{{ weather.location.state }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="temperature mb-3">
+                        <span class="display-1 fw-bold">{{ weather.temperature|floatformat:1 }}</span>
+                        <span class="fs-1">°C</span>
+                    </div>
+
+                    <div class="description mb-3">
+                        <span class="lead">{{ weather.description }}</span>
+                    </div>
+
+                    <div class="detail-item mb-3">
+                        <span class="fw-bold">Ветер:</span>
+                        <span>{{ weather.wind_speed|floatformat:1 }} м/с</span>
+                    </div>
+                </div>
+
+                <!-- Кнопка добавления в избранное -->
+                <form method="post" action="{% url 'main:add_location' %}" class="mt-3">
+                    {% csrf_token %}
+                    <input type="hidden" name="name" value="{{ weather.location.name_ru }}">
+                    <input type="hidden" name="lat" value="{{ weather.location.lat }}">
+                    <input type="hidden" name="lon" value="{{ weather.location.lon }}">
+                    <input type="hidden" name="temperature" value="{{ weather.temperature }}">
+                    <input type="hidden" name="description" value="{{ weather.description }}">
+                    <input type="hidden" name="wind_speed" value="{{ weather.wind_speed }}">
+                    <button type="submit" class="btn btn-outline-primary w-100">
+                        Добавить в избранное
+                    </button>
+                </form>
+            </div>
         </div>
-        {% endfor %}
-    </div>
+        {% endif %}
 
-    {% endif %}
+        <!-- Сообщения -->
+        {% if messages %}
+        <div class="mt-4">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
 
-
-    {% if error_message %}
-    <p> {{ error_message}}</p>
-    {% endif %}
-
-    <div class="right-panel">
-        <h3>⭐ Избранное</h3>
-        {% if locations %}
-        {% for location in locations %}
-        <div>{{ location.name }}</div>
-        {% endfor %}
-        {% else %}
-        <p>Нет избранных</p>
+        {% if error_message %}
+        <div class="alert alert-danger mt-3">
+            {{ error_message }}
+        </div>
         {% endif %}
     </div>
 
+    <!-- Правая колонка: избранное -->
+    <div class="col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Избранное</h5>
+                <form method="post" action="{% url 'main:refresh_weather' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-primary">
+                        Обновить погоду
+                    </button>
+                </form>
+            </div>
+            <div class="list-group list-group-flush">
+                {% if locations %}
+                {% for location in locations %}
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <strong>{{ location.name }}</strong>
+                        <form method="post" action="{% url 'main:delete_location' %}" style="display: inline;"
+                            onsubmit="return confirm('Удалить {{ location.name }} из избранного?')">
+                            {% csrf_token %}
+                            <input type="hidden" name="name" value="{{ location.name }}">
+                            <button type="submit" class="btn btn-sm btn-danger">
+                                Удалить
+                            </button>
+                        </form>
+                    </div>
+
+                    {% if location.weather_data %}
+                    <div class="favorite-weather small">
+                        <div class="row">
+                            <div class="col-6">
+                                <span class="fw-bold">
+                                    {{ location.weather_data.temperature|floatformat:1 }}°C
+                                </span>
+                            </div>
+                            <div class="col-6 text-muted">
+                                {{ location.weather_data.description }}
+                            </div>
+                        </div>
+                        <div class="row mt-1">
+                            <div class="col-6 text-muted">
+                                💨 {{ location.weather_data.wind_speed|floatformat:1 }} м/с
+                            </div>
+                        </div>
+                        {% if location.weather_updated_at %}
+                        <div class="text-end mt-1">
+                            <small class="text-muted">
+                                обновлено: {{ location.weather_updated_at|date:"H:i" }} Мск
+                            </small>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <div class="text-muted small">
+                        Погода не загружена
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="list-group-item text-center text-muted">
+                    Нет избранных локаций
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

@@ -13,12 +13,11 @@ class Location(models.Model):
         related_name="locations",
         verbose_name="Пользователь",
     )
-
     name = models.CharField(max_length=200, verbose_name="Название локации")
-
     lat = models.DecimalField(max_digits=6, decimal_places=3, verbose_name="Широта")
-
     lon = models.DecimalField(max_digits=6, decimal_places=3, verbose_name="Долгота")
+    weather_data = models.JSONField(null=True, blank=True)
+    weather_updated_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ["-id"]
